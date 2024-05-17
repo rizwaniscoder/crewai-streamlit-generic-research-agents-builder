@@ -15,13 +15,9 @@ from crewai_tools import SerperDevTool
 from langchain_community.tools import DuckDuckGoSearchRun
 from crewai_tools import SeleniumScrapingTool
 
-
-
 serper_tool = SerperDevTool()
-
 duckduckgo_search = DuckDuckGoSearchRun()
 salenium_tool = SeleniumScrapingTool()
-
 
 # Improved StreamToExpander class which includes error handling and stream flushing
 class StreamToExpander:
@@ -66,9 +62,12 @@ class CrewAIApp:
         number_of_agents = st.number_input("Number of Agents to Create:", min_value=1, max_value=10, value=1, step=1)
         agent_details = self.collect_agent_details(number_of_agents)
 
-        # PDF Analysis
-        number_of_pdfs = st.number_input("Number of PDFs for Analysis:", min_value=1, max_value=10, value=1, step=1)
-        pdfs = self.upload_pdfs(number_of_pdfs)
+        # PDF Analysis Option
+        include_pdfs = st.checkbox("Include PDFs for Analysis")
+        pdfs = []
+        if include_pdfs:
+            number_of_pdfs = st.number_input("Number of PDFs for Analysis:", min_value=1, max_value=10, value=1, step=1)
+            pdfs = self.upload_pdfs(number_of_pdfs)
 
         # Task configuration
         tasks_list = [st.text_input(f"Task for Agent {i+1}", key=f"task_{i}") for i in range(number_of_agents)]
@@ -119,7 +118,7 @@ class CrewAIApp:
                         pdf_reader = PyPDF2.PdfReader(pdf)
                         pdf_text = ""
                         for page_num in range(len(pdf_reader.pages)):
-                            page = pdf_reader.pages[page_num] 
+                            page = pdf_reader.pages[page_num]
                             pdf_text += page.extract_text()
                         tasks[0].description += "\n\n" + pdf_text
                     except Exception as e:
@@ -155,3 +154,4 @@ class CrewAIApp:
 if __name__ == "__main__":
     app = CrewAIApp()
     app.run()
+
